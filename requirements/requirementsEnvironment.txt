@@ -1,0 +1,123 @@
+sutil/requirements/requirementsEnvironment.txt
+tags: #requirements #venv
+
+===============================================================================
+Preferred Setup Requirements Document                                v1.0
+===============================================================================
+This document outlines the preferred multi-project Python development
+environment. It describes isolated virtual environments (venvs),
+cross-platform CLI tools that run anywhere, and a consistent directory
+structure for the projects "soulscapes", "hl7test", and "sutils". This
+setup ensures that each project has independent dependencies and that the
+general utilities (sutils) can be run from any location, regardless of the
+active shell state.
+
+-------------------------------- Directory Structure ---------------------------
+All projects reside under a single "projects" folder. An example layout is:
+
+    ~/projects/
+      sampleProject/
+        venv/                  # Virtual environment for sampleProject
+        server_start.py        # Project-specific script(s)
+        other_tool.py
+        requirements.txt
+
+      hl7test/
+        venv/                  # Virtual environment for hl7test
+        play_with_fhir.py      # Project-specific script(s)
+        requirements.txt
+
+      sutils/
+        venv/                  # Virtual environment for general utilities
+        clip_files.py          # CLI tool (e.g., for file operations)
+        other_utils.py
+        sutils/                # (Optional) Package directory for shared code
+          __init__.py
+        requirements.txt
+
+-------------------------- Virtual Environment Strategy -----------------------
+Each project has its own isolated venv to ensure no dependency conflicts.
+
+To create a venv in a project directory, run:
+
+    python -m venv venv
+
+Then activate as follows:
+  - Mac/Linux:  source venv/bin/activate
+  - Windows:    venv\Scripts\activate
+
+Install dependencies via a requirements.txt file, e.g.:
+
+    pip install -r requirements.txt
+
+---------------------- Cross-Platform CLI Tools (sutils) ----------------------
+The sutils project provides general utilities that must run independently
+of any currently activated environment.
+
+Key points:
+  1. Write CLI scripts (e.g., clip_files.py) with a proper shebang:
+         #!/usr/bin/env python
+     This works on Mac/Linux. On Windows, rely on file associations or
+     the Python Launcher (py.exe).
+
+  2. Do not require the user to manually activate the sutils venv. Instead,
+     explicitly invoke the venv’s Python interpreter. For example:
+
+         ~/projects/sutils/venv/bin/python ~/projects/sutils/clip_files.py "*.txt"
+
+  3. Create launcher scripts to simplify usage:
+     - On Mac/Linux, create a launcher script (e.g., ~/bin/clip_files):
+
+           #!/bin/bash
+           ~/projects/sutils/venv/bin/python ~/projects/sutils/clip_files.py "$@"
+
+       Then make it executable and ensure ~/bin is in your PATH.
+
+     - On Windows, create a CMD file (e.g., clip_files.cmd in
+       C:\Users\<user>\bin) with the following content:
+
+           @echo off
+           C:\Users\<user>\projects\sutils\venv\Scripts\python.exe 
+           C:\Users\<user>\projects\sutils\clip_files.py %*
+
+This allows you to run sutils tools from anywhere without venv conflicts.
+
+------------------- Workflow for Switching Between Projects ------------------
+A typical workday might look like this:
+
+  * For sampleProject:
+      cd ~/projects/sampleProject
+      source venv/bin/activate       (Mac/Linux)
+      venv\Scripts\activate          (Windows)
+      python server_start.py
+
+  * For hl7test:
+      cd ~/projects/hl7test
+      source venv/bin/activate       (Mac/Linux)
+      venv\Scripts\activate          (Windows)
+      python play_with_fhir.py
+
+  * For general sutils tools:
+      Either run the launcher (e.g., "clip_files '*.txt'")
+      OR:
+          cd ~/projects/sutils
+          source venv/bin/activate
+          python clip_files.py "*.txt"
+
+Tools like "direnv" can be used to auto-activate the correct venv when you
+change directories.
+
+------------------------- Summary of Key Requirements -------------------------
+- Projects ("sampleProject", "hl7test", "sutils") reside under ~/projects/.
+- Each project has its own isolated venv to prevent dependency conflicts.
+- The "sutils" project provides general utilities and has its own venv.
+- Cross-platform launcher scripts (bash for Mac/Linux; CMD for Windows)
+  invoke the sutils venv explicitly, making them independent of the current
+  shell state.
+- Workflow:
+     - Activate the project-specific venv when working within a project.
+     - Use the launcher scripts for general utilities to ensure isolation.
+
+------------------------------ Version History -------------------------------
+v1.0 - Initial requirements document created.
+===============================================================================
