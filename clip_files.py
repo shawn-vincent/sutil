@@ -3,13 +3,15 @@
 # tags: #util #clipboard 
 """
 clip_files.py - Aggregate file contents based on glob patterns and tags,
-                supporting both inclusion and exclusion rules.
+                supporting both inclusion and exclusion rules. Supports an
+                optional flag "--no-ignore" to ignore .gitignore exclusions.
 
 Usage:
-    python clip_files.py "<patternOrTag1>" "<patternOrTag2>" ...
+    python clip_files.py [--no-ignore] "<patternOrTag1>" "<patternOrTag2>" ...
 
 Examples:
     python clip_files.py "*.py" "*.md"
+    python clip_files.py --no-ignore "*.py" "*.md"
     python clip_files.py +frontend "*.json" -*.test.json -+experimental
 """
 
@@ -31,7 +33,10 @@ except ImportError:
 
 def print_usage():
     usage = (
-        "Usage: python clip_files.py \"<patternOrTag1>\" \"<patternOrTag2>\" ...\n"
+        "Usage: python clip_files.py [--no-ignore] \"<patternOrTag1>\" \"<patternOrTag2>\" ...\n"
+        "\n"
+        "Optional Flags:\n"
+        "  --no-ignore   Do not apply .gitignore exclusions (include all files).\n"
         "\n"
         "Inclusion Arguments:\n"
         "  Glob Patterns: e.g. \"*.js\", \"*.sh\". If no wildcard, the pattern is\n"
@@ -249,16 +254,25 @@ def file_matches_exclusion(file_path, arg_data, lines_cache):
 
 
 def main():
-    # Parse command-line arguments.
+    # Collect command-line arguments.
     args = sys.argv[1:]
+    
+    # Check for the --no-ignore flag and remove it from the argument list if present.
+    no_ignore = False
+    if "--no-ignore" in args:
+        no_ignore = True
+        args.remove("--no-ignore")
+    
     if not args:
         print_usage()
         sys.exit(1)
 
     arg_data = parse_arguments(args)
 
-    # Load .gitignore rules (if available and if pathspec is installed).
-    ignore_spec = load_ignore_spec()
+    # Load .gitignore rules only if not disabled by --no-ignore.
+    ignore_spec = None
+    if not no_ignore:
+        ignore_spec = load_ignore_spec()
 
     # Recursively traverse the filesystem starting at the current directory.
     candidate_files = []
@@ -345,6 +359,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 
 
 
