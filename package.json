@@ -1,0 +1,30 @@
+{
+  "name": "clop",
+  "version": "1.0.0",
+  "description": "A tool to aggregate file contents based on glob patterns and copy to clipboard.",
+  "main": "clop.js",
+  "bin": {
+    "clop": "./clop.js"
+  },
+  "scripts": {
+    "test": "jest clop.test.js"
+  },
+  "keywords": [
+    "cli",
+    "clipboard",
+    "glob"
+  ],
+  "author": "Gemini",
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "clipboardy": "^2.3.0",
+    "glob": "^7.2.0",
+    "ignore": "^5.2.0",
+    "yargs": "^17.3.1"
+  },
+  "devDependencies": {
+    "jest": "^30.0.3",
+    "jest-cli": "^30.0.3"
+  }
+}

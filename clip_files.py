@@ -98,7 +98,7 @@ def load_ignore_spec():
         try:
             return pathspec.PathSpec.from_lines('gitwildmatch', processed_patterns)
         except Exception as e:
-            print(f"Warning: Could not compile ignore spec: {e}", file=sys.stderr)
+            print(f"⚠️ Warning: Could not compile ignore spec: {e}", file=sys.stderr)
     return None
 
 
@@ -169,7 +169,7 @@ def file_matches_inclusion(file_path, arg_data):
                 lines = [f.readline() for _ in range(10)]
                 content = "".join(lines)
         except Exception as e:
-            print(f"Error reading file {file_path}: {e}", file=sys.stderr)
+            print(f"❌ Error reading file {file_path}: {e}", file=sys.stderr)
             return (False, None, None, lines)
 
         for tag in arg_data['inclusion_tags']:
@@ -197,7 +197,7 @@ def file_matches_exclusion(file_path, arg_data, lines_cache):
                     lines = [f.readline() for _ in range(10)]
                     content = "".join(lines)
             except Exception as e:
-                print(f"Error reading file {file_path}: {e}", file=sys.stderr)
+                print(f"❌ Error reading file {file_path}: {e}", file=sys.stderr)
         else:
             content = "".join(lines_cache)
         for tag in arg_data['exclusion_tags']:
@@ -245,7 +245,7 @@ def main():
             candidate_files.append(file_path)
 
     if not candidate_files:
-        print("No candidate files found in the filesystem.")
+        print("⚠️ No candidate files found in the filesystem.")
         sys.exit(0)
 
     final_files = []
@@ -270,7 +270,7 @@ def main():
         final_files.append(file)
 
     if not final_files:
-        print("No files matched the given patterns/tags after applying exclusions.")
+        print("⚠️ No files matched the given patterns/tags after applying exclusions.")
         sys.exit(0)
 
     aggregated_output = ""
@@ -284,15 +284,15 @@ def main():
             with open(file, 'r', errors='replace') as f:
                 aggregated_output += f.read() + "\n"
         except Exception as e:
-            print(f"Error reading file {file}: {e}", file=sys.stderr)
+            print(f"❌ Error reading file {file}: {e}", file=sys.stderr)
 
     try:
         pyperclip.copy(aggregated_output)
     except Exception as e:
-        print(f"Error copying to clipboard: {e}", file=sys.stderr)
+        print(f"❌ Error copying to clipboard: {e}", file=sys.stderr)
 
     char_count = len(aggregated_output)
-    print(f"📄 Copied {file_count} files ({char_count} characters) to the clipboard.")
+    print(f"✅ Copied {file_count} files ({char_count} characters) to the clipboard.")
 
     if (arg_data['unmatched_inclusion_patterns'] or arg_data['unmatched_inclusion_tags'] or
         arg_data['unmatched_exclusion_patterns'] or arg_data['unmatched_exclusion_tags']):
